@@ -8,7 +8,7 @@ LSFML is an attempt to implement the popular C++ multimedia library SFML (http:/
 How to use:
 -----
 
-LSFML is modular, similar to SFML itself. This means if you aren't using one or more SFML module, simply don't include them in your project and those modules will not be loaded.
+LSFML is modular, similar to SFML itself. This means if you aren't using one or more SFML modules, simply don't include them in your project and those modules will not be loaded.
 
 Some modules depend on other modules. All modules depend on sfml-system, but sfml-graphics also depends on sfml-window.
 
