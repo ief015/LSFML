@@ -8,7 +8,11 @@ LSFML is an attempt to implement the popular C++ multimedia library SFML (http:/
 Roadmap:
 ===
 System API (sfml-system) - Done!
+
 Windowing API (sfml-window) - Done!
+
 Audio API (sfml-audio)
+
 Networking API (sfml-network)
+
 Graphics API (sfml-graphics)
