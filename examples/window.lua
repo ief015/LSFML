@@ -1,5 +1,7 @@
 require 'sfml-window';
+
 print("SFML " .. sf.Version.Major .. "." .. sf.Version.Minor .. " - Window");
+
 
 local window = sf.Window(sf.VideoMode(800, 600), "Hello, SFML", sf.Style.Default);
 window:setKeyRepeatEnabled(true);
@@ -33,11 +35,11 @@ while window:isOpen() do
 		end
 		
 		if event.type == sf.Event.KeyPressed then
-			print("Key pressed", event.key.code, "Alt " .. event.key.alt, "Ctrl " .. event.key.control, "Shift " .. event.key.shift, "System " .. event.key.shift);
+			print("Key pressed", event.key.code, "Alt " .. event.key.alt, "Ctrl " .. event.key.control, "Shift " .. event.key.shift, "System " .. event.key.system);
 		end
 		
 		if event.type == sf.Event.KeyReleased then
-			print("Key released", event.key.code, "Alt " .. event.key.alt, "Ctrl " .. event.key.control, "Shift " .. event.key.shift, "System " .. event.key.shift);
+			print("Key released", event.key.code, "Alt " .. event.key.alt, "Ctrl " .. event.key.control, "Shift " .. event.key.shift, "System " .. event.key.system);
 		end
 		
 		if event.type == sf.Event.MouseWheelMoved then
