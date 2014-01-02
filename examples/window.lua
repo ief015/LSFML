@@ -1,4 +1,4 @@
-require '../sfml';
+require 'sfml-window';
 print("SFML " .. sf.Version.Major .. "." .. sf.Version.Minor .. " - Window");
 
 local window = sf.Window(sf.VideoMode(800, 600), "Hello, SFML", sf.Style.Default);

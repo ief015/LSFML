@@ -1,4 +1,4 @@
-require '../sfml';
+require 'sfml-system';
 print("SFML " .. sf.Version.Major .. "." .. sf.Version.Minor .. " - System");
 
 local clk = sf.Clock();

@@ -1,0 +1,367 @@
+--=================================--
+-- 
+-- LuaJIT/FFI wrapper for SFML 2.x
+-- Author: Nathan Cousins
+-- 
+-- 
+-- Released under the zlib/libpng license:
+-- 
+-- Copyright (c) 2014 Nathan Cousins
+-- 
+-- This software is provided 'as-is', without any express or implied warranty. In
+-- no event will the authors be held liable for any damages arising from the use
+-- of this software.
+-- 
+-- Permission is granted to anyone to use this software for any purpose, including
+-- commercial applications, and to alter it and redistribute it freely, subject to
+-- the following restrictions:
+-- 
+-- 1. The origin of this software must not be misrepresented; you must not claim 
+--    that you wrote the original software. If you use this software in a product,
+--    an acknowledgment in the product documentation would be appreciated but is
+--    not required.
+--
+-- 2. Altered source versions must be plainly marked as such, and must not be
+--    misrepresented as being the original software.
+-- 
+-- 3. This notice may not be removed or altered from any source distribution.
+-- 
+--=================================--
+
+local ffi = require 'ffi';
+
+local setmetatable = setmetatable;
+local rawget = rawget;
+local require = require;
+
+module 'sf';
+require 'sfml-main';
+
+
+local function newObj(cl, obj)
+	local gc = rawget(cl, '__gc');
+	if gc ~= nil then
+		ffi.gc(obj, gc);
+	end
+	return obj;
+end
+
+
+ffi.cdef [[
+typedef struct
+{
+	int x;
+	int y;
+} sfVector2i;
+
+typedef struct
+{
+	unsigned int x;
+	unsigned int y;
+} sfVector2u;
+
+typedef struct
+{
+	float x;
+	float y;
+} sfVector2f;
+
+typedef struct
+{
+	float x;
+	float y;
+	float z;
+} sfVector3f;
+
+typedef struct
+{
+	sfInt64 microseconds;
+} sfTime;
+
+typedef struct sfClock  sfClock;
+typedef struct sfMutex  sfMutex;
+typedef struct sfThread sfThread;
+
+typedef sfInt64 (*sfInputStreamReadFunc)    (void* data, sfInt64 size, void* userData);
+typedef sfInt64 (*sfInputStreamSeekFunc)    (sfInt64 position, void* userData);
+typedef sfInt64 (*sfInputStreamTellFunc)    (void* userData);
+typedef sfInt64 (*sfInputStreamGetSizeFunc) (void* userData);
+
+typedef struct sfInputStream
+{
+	sfInputStreamReadFunc    read;     ///< Function to read data from the stream
+	sfInputStreamSeekFunc    seek;     ///< Function to set the current read position
+	sfInputStreamTellFunc    tell;     ///< Function to get the current read position
+	sfInputStreamGetSizeFunc getSize;  ///< Function to get the total number of bytes in the stream
+	void*                    userData; ///< User data that will be passed to the callbacks
+} sfInputStream;
+
+sfClock*  sfClock_create(void);
+sfClock*  sfClock_copy(const sfClock* clock);
+void      sfClock_destroy(sfClock* clock);
+sfTime    sfClock_getElapsedTime(const sfClock* clock);
+sfTime    sfClock_restart(sfClock* clock);
+
+sfTime  sfTime_Zero;
+float   sfTime_asSeconds(sfTime time);
+sfInt32 sfTime_asMilliseconds(sfTime time);
+sfInt64 sfTime_asMicroseconds(sfTime time);
+sfTime  sfSeconds(float amount);
+sfTime  sfMilliseconds(sfInt32 amount);
+sfTime  sfMicroseconds(sfInt64 amount);
+
+sfMutex* sfMutex_create(void);
+void     sfMutex_destroy(sfMutex* mutex);
+void     sfMutex_lock(sfMutex* mutex);
+void     sfMutex_unlock(sfMutex* mutex);
+
+void sfSleep(sfTime duration);
+
+sfThread* sfThread_create(void (*function)(void*), void* userData);
+void      sfThread_destroy(sfThread* thread);
+void      sfThread_launch(sfThread* thread);
+void      sfThread_wait(sfThread* thread);
+void      sfThread_terminate(sfThread* thread);
+]];
+
+
+local function bool(b)
+	-- Convert sfBool to Lua boolean.
+	return b ~= ffi.C.sfFalse;
+end
+
+
+local sfSystem = ffi.load('csfml-system-2');
+if sfSystem then
+
+Clock = {};       Clock.__index = Clock;
+Time = {};        Time.__index = Time;
+InputStream = {}; InputStream.__index = InputStream;
+Mutex = {};       Mutex.__index = Mutex;
+Thread = {};      Thread.__index = Thread;
+Vector2i = {};    Vector2i.__index = Vector2i;
+Vector2u = {};    Vector2u.__index = Vector2u;
+Vector2f = {};    Vector2f.__index = Vector2f;
+Vector3f = {};    Vector3f.__index = Vector3f;
+
+
+--[=[
+Clock()
+Clock Clock:copy(Clock clk)
+Time  Clock:getElapsedTime()
+Time  Clock:restart()
+]=]
+
+setmetatable(Clock, { __call = function(cl)
+	return newObj(Clock, sfSystem.sfClock_create());
+end });
+function Clock:__gc()
+	sfSystem.sfClock_destroy(self);
+end
+function Clock:copy()
+	return newObj(Time, sfSystem.sfClock_copy(self));
+end
+function Clock:getElapsedTime()
+	return newObj(Time, sfSystem.sfClock_getElapsedTime(self));
+end
+function Clock:restart()
+	return newObj(Time, sfSystem.sfClock_restart(self));
+end
+ffi.metatype('sfClock', Clock);
+
+
+--[=[
+Time.Zero = microseconds(0)
+Time   seconds(number seconds)
+Time   milliseconds(number millis)
+Time   microseconds(number micros)
+number Time:asSeconds()
+number Time:asMilliseconds()
+number Time:asMicroseconds()
+bool   Time:operator < (Time right)
+bool   Time:operator <= (Time right)
+bool   Time:operator > (Time right)
+bool   Time:operator >= (Time right)
+bool   Time:operator == (Time right)
+bool   Time:operator != (Time right)
+Time   Time:operator + (Time right)
+Time   Time:operator - (Time right)
+Time   Time:operator * (number right)
+Time   Time:operator / (number right)
+]=]
+
+Time.Zero = sfSystem.sfTime_Zero;
+function seconds(amount)
+	return sfSystem.sfSeconds(amount);
+end
+function milliseconds(amount)
+	return sfSystem.sfMilliseconds(amount);
+end
+function microseconds(amount)
+	return sfSystem.sfMicroseconds(amount);
+end
+function Time:asSeconds()
+	return sfSystem.sfTime_asSeconds(self);
+end
+function Time:asMilliseconds()
+	return sfSystem.sfTime_asMilliseconds(self);
+end
+function Time:asMicroseconds()
+	return sfSystem.sfTime_asMicroseconds(self);
+end
+function Time:__lt(rhs)
+	return self.microseconds < rhs.microseconds;
+end
+function Time:__le(rhs)
+	return self.microseconds <= rhs.microseconds;
+end
+function Time:__eq(rhs)
+	return self.microseconds == rhs.microseconds;
+end
+function Time:__add(rhs)
+	return sfSystem.sfMicroseconds(self.microseconds + rhs.microseconds);
+end
+function Time:__sub(rhs)
+	return sfSystem.sfMicroseconds(self.microseconds - rhs.microseconds);
+end
+function Time:__mul(rhs)
+	return sfSystem.sfMicroseconds(self.microseconds * rhs);
+end
+function Time.__div(rhs)
+	return sfSystem.sfMicroseconds(self.microseconds / rhs);
+end
+ffi.metatype('sfTime', Time);
+
+
+--[=[
+InputStream()
+function    InputStream.read    => function(cdata data, number size, cdata userData)
+function    InputStream.seek    => function(number position, cdata userData)
+function    InputStream.tell    => function(cdata data)
+function    InputStream.getSize => function(cdata userData)
+userdata    InputStream.userData
+]=]
+
+setmetatable(InputStream, { __call = function(cl)
+	return ffi.new('sfInputStream');
+end });
+ffi.metatype('sfInputStream', InputStream);
+
+
+--[=[
+Mutex()
+nil   Mutex:lock()
+nil   Mutex:unlock()
+]=]
+
+setmetatable(Mutex, { __call = function(cl)
+	return newObj(Mutex, sfSystem.sfMutex_create());
+end });
+function Mutex:__gc()
+	sfSystem.sfMutex_destroy(self);
+end
+function Mutex:lock()
+	sfSystem.sfMutex_lock(self);
+end
+function Mutex:unlock()
+	sfSystem.sfMutex_unlock(self);
+end
+ffi.metatype('sfMutex', Mutex);
+
+
+--[=[
+nil sleep(Time timeToSleep)
+]=]
+
+function sleep(obj)
+	sfSystem.sfSleep(obj);
+end
+
+
+--[=[
+Thread(function func, cdata userData = nil)
+nil    Thread:launch()
+nil    Thread:wait()
+nil    Thread:terminate()
+]=]
+
+setmetatable(Thread, { __call = function(cl, func, userdata)
+	return newObj(Thread, sfSystem.sfThread_create(func, userdata));
+end });
+function Thread:__gc()
+	sfSystem.sfThread_destroy(self);
+end
+function Thread:launch()
+	sfSystem.sfThread_launch(self);
+end
+function Thread:wait()
+	sfSystem.sfThread_wait(self);
+end
+function Thread:terminate()
+	sfSystem.sfThread_terminate(self);
+end
+ffi.metatype('sfThread', Thread);
+
+
+--[=[
+Vector2i(number x = 0, number y = 0)
+number   Vector2i.x
+number   Vector2i.y
+]=]
+
+setmetatable(Vector2i, { __call = function(cl, x, y)
+	local obj = ffi.new('sfVector2i');
+	if x == nil then obj.x = 0; else obj.x = x; end
+	if y == nil then obj.y = 0; else obj.y = y; end
+	return obj;
+end });
+ffi.metatype('sfVector2i', Vector2i);
+
+
+--[=[
+Vector2u(number x = 0, number y = 0)
+number   Vector2u.x
+number   Vector2u.y
+]=]
+
+setmetatable(Vector2u, { __call = function(cl, x, y)
+	local obj = ffi.new('sfVector2u');
+	if x == nil then obj.x = 0; else obj.x = x; end
+	if y == nil then obj.y = 0; else obj.y = y; end
+	return obj;
+end });
+ffi.metatype('sfVector2u', Vector2u);
+
+
+--[=[
+Vector2f(number x = 0, number y = 0)
+number   Vector2f.x
+number   Vector2f.y
+]=]
+
+setmetatable(Vector2f, { __call = function(cl, x, y)
+	local obj = ffi.new('sfVector2f');
+	if x == nil then obj.x = 0; else obj.x = x; end
+	if y == nil then obj.y = 0; else obj.y = y; end
+	return obj;
+end });
+ffi.metatype('sfVector2f', Vector2f);
+
+
+--[=[
+Vector3f(number x = 0, number y = 0, number z = 0)
+number   Vector3f.x
+number   Vector3f.y
+number   Vector3f.z
+]=]
+
+setmetatable(Vector3f, { __call = function(cl, x, y, z)
+	local obj = ffi.new('sfVector3f');
+	if x == nil then obj.x = 0; else obj.x = x; end
+	if y == nil then obj.y = 0; else obj.y = y; end
+	if z == nil then obj.z = 0; else obj.z = z; end
+	return obj;
+end });
+ffi.metatype('sfVector3f', Vector3f);
+
+end -- sfSystem
