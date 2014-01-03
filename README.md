@@ -16,11 +16,11 @@ For example, if you wanted to use the sfml-graphics module, you must include the
 
 Roadmap:
 -----
-System API (sfml-system) - Done!
+System API (sfml-system) - Near completed
 
-Windowing API (sfml-window) - Done!
+Windowing API (sfml-window) - Near completed
 
-Audio API (sfml-audio)
+Audio API (sfml-audio) - Near completed
 
 Networking API (sfml-network)
 
