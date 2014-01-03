@@ -35,7 +35,6 @@ local rawget = rawget;
 local require = require;
 
 module 'sf';
-require 'sfml-main';
 
 
 local function newObj(cl, obj)
@@ -47,7 +46,33 @@ local function newObj(cl, obj)
 end
 
 
+local function bool(b)
+	-- Convert sfBool to Lua boolean.
+	return b ~= ffi.C.sfFalse;
+end
+
+
 ffi.cdef [[
+typedef int             sfBool;
+typedef int8_t          sfInt8;
+typedef uint8_t         sfUint8;
+typedef int16_t         sfInt16;
+typedef uint16_t        sfUint16;
+typedef int32_t         sfInt32;
+typedef uint32_t        sfUint32;
+typedef int64_t         sfInt64;
+typedef uint64_t        sfUint64;
+
+typedef enum {
+	CSFML_VERSION_MAJOR = 2,
+	CSFML_VERSION_MINOR = 1,
+};
+
+enum {
+   sfFalse = 0,
+   sfTrue = 1,
+};
+
 typedef struct
 {
 	int x;
@@ -125,10 +150,14 @@ void      sfThread_terminate(sfThread* thread);
 ]];
 
 
-local function bool(b)
-	-- Convert sfBool to Lua boolean.
-	return b ~= ffi.C.sfFalse;
-end
+--[=[
+Version.Major = CSFML_VERSION_MAJOR
+Version.Minor = CSFML_VERSION_MINOR
+]=]
+
+Version = {};
+Version.Major = ffi.C.CSFML_VERSION_MAJOR;
+Version.Minor = ffi.C.CSFML_VERSION_MINOR;
 
 
 local sfSystem = ffi.load('csfml-system-2');
@@ -159,13 +188,13 @@ function Clock:__gc()
 	sfSystem.sfClock_destroy(self);
 end
 function Clock:copy()
-	return newObj(Time, sfSystem.sfClock_copy(self));
+	return sfSystem.sfClock_copy(self);
 end
 function Clock:getElapsedTime()
-	return newObj(Time, sfSystem.sfClock_getElapsedTime(self));
+	return sfSystem.sfClock_getElapsedTime(self);
 end
 function Clock:restart()
-	return newObj(Time, sfSystem.sfClock_restart(self));
+	return sfSystem.sfClock_restart(self);
 end
 ffi.metatype('sfClock', Clock);
 
@@ -192,13 +221,13 @@ Time   Time:operator / (number right)
 
 Time.Zero = sfSystem.sfTime_Zero;
 function seconds(amount)
-	return sfSystem.sfSeconds(amount);
+	return newObj(Time, sfSystem.sfSeconds(amount));
 end
 function milliseconds(amount)
-	return sfSystem.sfMilliseconds(amount);
+	return newObj(Time, sfSystem.sfMilliseconds(amount));
 end
 function microseconds(amount)
-	return sfSystem.sfMicroseconds(amount);
+	return newObj(Time, sfSystem.sfMicroseconds(amount));
 end
 function Time:asSeconds()
 	return sfSystem.sfTime_asSeconds(self);
@@ -219,16 +248,16 @@ function Time:__eq(rhs)
 	return self.microseconds == rhs.microseconds;
 end
 function Time:__add(rhs)
-	return sfSystem.sfMicroseconds(self.microseconds + rhs.microseconds);
+	return newObj(Time, sfSystem.sfMicroseconds(self.microseconds + rhs.microseconds));
 end
 function Time:__sub(rhs)
-	return sfSystem.sfMicroseconds(self.microseconds - rhs.microseconds);
+	return newObj(Time, sfSystem.sfMicroseconds(self.microseconds - rhs.microseconds));
 end
 function Time:__mul(rhs)
-	return sfSystem.sfMicroseconds(self.microseconds * rhs);
+	return newObj(Time, sfSystem.sfMicroseconds(self.microseconds * rhs));
 end
 function Time.__div(rhs)
-	return sfSystem.sfMicroseconds(self.microseconds / rhs);
+	return newObj(Time, sfSystem.sfMicroseconds(self.microseconds / rhs));
 end
 ffi.metatype('sfTime', Time);
 
@@ -243,7 +272,7 @@ userdata    InputStream.userData
 ]=]
 
 setmetatable(InputStream, { __call = function(cl)
-	return ffi.new('sfInputStream');
+	return newObj(InputStream, ffi.new('sfInputStream'));
 end });
 ffi.metatype('sfInputStream', InputStream);
 
@@ -303,6 +332,8 @@ end
 ffi.metatype('sfThread', Thread);
 
 
+-- TODO vector operators
+
 --[=[
 Vector2i(number x = 0, number y = 0)
 number   Vector2i.x
@@ -310,7 +341,7 @@ number   Vector2i.y
 ]=]
 
 setmetatable(Vector2i, { __call = function(cl, x, y)
-	local obj = ffi.new('sfVector2i');
+	local obj = newObj(Vector2i, ffi.new('sfVector2i'));
 	if x == nil then obj.x = 0; else obj.x = x; end
 	if y == nil then obj.y = 0; else obj.y = y; end
 	return obj;
@@ -325,7 +356,7 @@ number   Vector2u.y
 ]=]
 
 setmetatable(Vector2u, { __call = function(cl, x, y)
-	local obj = ffi.new('sfVector2u');
+	local obj = newObj(Vector2u, ffi.new('sfVector2u'));
 	if x == nil then obj.x = 0; else obj.x = x; end
 	if y == nil then obj.y = 0; else obj.y = y; end
 	return obj;
@@ -340,7 +371,7 @@ number   Vector2f.y
 ]=]
 
 setmetatable(Vector2f, { __call = function(cl, x, y)
-	local obj = ffi.new('sfVector2f');
+	local obj = newObj(Vector2f, ffi.new('sfVector2f'));
 	if x == nil then obj.x = 0; else obj.x = x; end
 	if y == nil then obj.y = 0; else obj.y = y; end
 	return obj;
@@ -356,7 +387,7 @@ number   Vector3f.z
 ]=]
 
 setmetatable(Vector3f, { __call = function(cl, x, y, z)
-	local obj = ffi.new('sfVector3f');
+	local obj = newObj(Vector3f, ffi.new('sfVector3f'));
 	if x == nil then obj.x = 0; else obj.x = x; end
 	if y == nil then obj.y = 0; else obj.y = y; end
 	if z == nil then obj.z = 0; else obj.z = z; end

@@ -48,14 +48,14 @@ local function newObj(cl, obj)
 end
 
 
-ffi.cdef [[
-]];
-
-
 local function bool(b)
 	-- Convert sfBool to Lua boolean.
 	return b ~= ffi.C.sfFalse;
 end
+
+
+ffi.cdef [[
+]];
 
 
 local sfGraphics = ffi.load('csfml-graphics-2');

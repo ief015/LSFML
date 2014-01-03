@@ -47,6 +47,12 @@ local function newObj(cl, obj)
 end
 
 
+local function bool(b)
+	-- Convert sfBool to Lua boolean.
+	return b ~= ffi.C.sfFalse;
+end
+
+
 ffi.cdef [[
 typedef struct sfContext sfContext;
 typedef struct sfWindow sfWindow;
@@ -369,12 +375,6 @@ sfWindowHandle    sfWindow_getSystemHandle(const sfWindow* window);
 ]];
 
 
-local function bool(b)
-	-- Convert sfBool to Lua boolean.
-	return b ~= ffi.C.sfFalse;
-end
-
-
 local sfWindow = ffi.load('csfml-window-2');
 if sfWindow then
 
@@ -396,6 +396,7 @@ Mouse = {};           Mouse.__index = Mouse;
 Style = {};           Style.__index = Style;
 VideoMode = {};       VideoMode.__index = VideoMode;
 Window = {};          Window.__index = Window;
+WindowHandle = {};    WindowHandle.__index = WindowHandle;
 
 
 --[=[
@@ -428,7 +429,7 @@ number          ContextSettings.minorVersion
 ]=]
 
 setmetatable(ContextSettings, { __call = function(cl, depthBits, stencilBits, antialiasingLevel, majorVersion, minorVersion)
-	local obj = ffi.new('sfContextSettings');
+	local obj = newObj(ContextSettings, ffi.new('sfContextSettings'));
 	if depthBits == nil         then obj.depthBits = 0;         else obj.depthBits = depthBits; end
 	if stencilBits == nil       then obj.stencilBits = 0;       else obj.stencilBits = stencilBits; end
 	if antialiasingLevel == nil then obj.antialiasingLevel = 0; else obj.antialiasingLevel = antialiasingLevel; end
@@ -517,7 +518,7 @@ Event.JoystickDisconnected
 
 
 setmetatable(Event, { __call = function(cl)
-	return ffi.new('sfEvent');
+	return newObj(Event, ffi.new('sfEvent'));
 end });
 
 Event.Closed = sfWindow.sfEvtClosed;
@@ -589,7 +590,7 @@ Joystick.isButtonPressed = function(joystickId, button)
 	return bool(sfWindow.sfJoystick_isButtonPressed(joystickId, button));
 end
 Joystick.getAxisPosition = function(joystickId, axis)
-	return newObj(Vector2i, sfWindow.sfJoystick_getAxisPosition(joystickId, axis));
+	return sfWindow.sfJoystick_getAxisPosition(joystickId, axis);
 end
 Joystick.update = function()
 	sfWindow.sfJoystick_update();
@@ -850,7 +851,7 @@ Mouse.isButtonPressed = function(button)
 	return bool(sfWindow.sfMouse_isButtonPressed(button));
 end
 Mouse.getPosition = function(relativeTo)
-	return newObj(Vector2i, sfWindow.sfMouse_getPosition(relativeTo));
+	return sfWindow.sfMouse_getPosition(relativeTo);
 end
 Mouse.setPosition = function(position, relativeTo)
 	sfWindow.sfMouse_setPosition(position, relativeTo);
@@ -891,7 +892,7 @@ number    VideoMode.bitsPerPixel
 ]=]
 
 setmetatable(VideoMode, { __call = function(cl, width, height, bitsPerPixel)
-	local obj = ffi.new('sfVideoMode');
+	local obj = newObj(VideoMode, ffi.new('sfVideoMode'));
 	if width == nil        then obj.width = 0;         else obj.width = width; end
 	if height == nil       then obj.height = 0;        else obj.height = height; end
 	if bitsPerPixel == nil then obj.bitsPerPixel = 32; else obj.bitsPerPixel = bitsPerPixel; end
@@ -1010,5 +1011,8 @@ function Window:getSystemHandle()
 	return sfWindow.sfWindow_getSystemHandle(self);
 end
 ffi.metatype('sfWindow', Window);
+
+
+ffi.metatype('sfWindowHandle', WindowHandle);
 
 end -- sfWindow
