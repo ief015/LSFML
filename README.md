@@ -15,18 +15,18 @@ LSFML is modular, similar to SFML itself. This means if you aren't using one or 
 
 Some modules depend on other modules. All modules depend on sfml-system, but sfml-graphics also depends on sfml-window.
 
-For example, if you wanted to use the sfml-graphics module, you must include the sfml-window and sfml-system with your project as well, but in your Lua code you only have to `require 'sfml-graphics'`. After that, all you have to do now is include the required [CSFML binaries](http://www.sfml-dev.org/download/csfml/) (.dll, .so, etc.,) with your project.
+For example, if you wanted to use the sfml-graphics module, you must include the sfml-window and sfml-system with your project as well, but in your Lua code you only have to `require 'ffi/sfml-graphics'`. After that, all you have to do now is include the required [CSFML binaries](http://www.sfml-dev.org/download/csfml/) (.dll, .so, etc.,) with your project.
 Easy, right?
 
 
 Roadmap:
 -----
-System API (sfml-system) - Near completed
+System API (sfml-system)      - Usable, near completed
 
-Windowing API (sfml-window) - Near completed
+Windowing API (sfml-window)   - Completed
 
-Audio API (sfml-audio) - Near completed
+Audio API (sfml-audio)        - Usable, near completed
 
-Networking API (sfml-network)
+Networking API (sfml-network) - 25%
 
-Graphics API (sfml-graphics)
+Graphics API (sfml-graphics)  - 25%
