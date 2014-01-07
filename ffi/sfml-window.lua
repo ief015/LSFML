@@ -35,7 +35,7 @@ local rawget = rawget;
 local require = require;
 
 module 'sf';
-require 'sfml-system';
+require 'ffi/sfml-system';
 
 
 local function newObj(cl, obj)

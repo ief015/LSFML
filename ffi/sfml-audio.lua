@@ -36,7 +36,7 @@ local require = require;
 local type = type;
 
 module 'sf';
-require 'sfml-system';
+require 'ffi/sfml-system';
 
 
 local function newObj(cl, obj)
@@ -51,11 +51,6 @@ end
 local function bool(b)
 	-- Convert sfBool to Lua boolean.
 	return b ~= ffi.C.sfFalse;
-end
-
-
-local function tbl2cdata(ct, tbl)
-	ffi.new(ct .. '[' .. #tbl .. ']', tbl);
 end
 
 
@@ -259,12 +254,12 @@ number      Music:getChannelCount()
 number      Music:getSampleRate()
 SoundStatus Music:getStatus()
 Time        Music:getPlayingOffset()
-nil         Music:setPitch(float pitch)
-nil         Music:setVolume(float volume)
+nil         Music:setPitch(number pitch)
+nil         Music:setVolume(number volume)
 nil         Music:setPosition(sfVector3f position)
 nil         Music:setRelativeToListener(sfBool relative)
-nil         Music:setMinDistance(float distance)
-nil         Music:setAttenuation(float attenuation)
+nil         Music:setMinDistance(number distance)
+nil         Music:setAttenuation(number attenuation)
 nil         Music:setPlayingOffset(sfTime timeOffset)
 number      Music:getPitch()
 number      Music:getVolume()
@@ -374,12 +369,12 @@ SoundBuffer Sound:getBuffer()
 nil         Sound:setLoop(bool loop = true)
 bool        Sound:getLoop()
 SoundStatus Sound:getStatus()
-nil         Sound:setPitch(float pitch)
-nil         Sound:setVolume(float volume)
+nil         Sound:setPitch(number pitch)
+nil         Sound:setVolume(number volume)
 nil         Sound:setPosition(sfVector3f position)
 nil         Sound:setRelativeToListener(sfBool relative)
-nil         Sound:setMinDistance(float distance)
-nil         Sound:setAttenuation(float attenuation)
+nil         Sound:setMinDistance(number distance)
+nil         Sound:setAttenuation(number attenuation)
 nil         Sound:setPlayingOffset(sfTime timeOffset)
 number      Sound:getPitch()
 number      Sound:getVolume()
@@ -474,13 +469,13 @@ SoundBuffer(string filename)
 SoundBuffer(cdata data, number sizeInBytes)
 SoundBuffer(InputStream stream)
 SoundBuffer(table samples, number sampleCount, number channelCount, number sampleRate)
-SoundBuffer SoundBuffer:copy()
-bool        SoundBuffer:saveToFile(string filename)
-cdata       SoundBuffer:getSamples()
-number      SoundBuffer:getSampleCount()
-number      SoundBuffer:getSampleRate()
-number      SoundBuffer:getChannelCount()
-Time        SoundBuffer:getDuration()
+SoundBuffer    SoundBuffer:copy()
+bool           SoundBuffer:saveToFile(string filename)
+cdata<number*> SoundBuffer:getSamples()
+number         SoundBuffer:getSampleCount()
+number         SoundBuffer:getSampleRate()
+number         SoundBuffer:getChannelCount()
+Time           SoundBuffer:getDuration()
 ]=]
 
 
@@ -556,7 +551,7 @@ ffi.metatype('sfSoundBufferRecorder', SoundBufferRecorder);
 
 
 --[=[
-SoundStream(function onGetData => function(SoundStream.Chunk chunk, cdata userData), function onSeek => function(Time offset, cdata userData), number channelCount, number sampleRate, cdata userData)
+SoundStream(function onGetData => function(SoundStream.Chunk chunk, cdata<void*> userData), function onSeek => function(Time offset, cdata<void*> userData), number channelCount, number sampleRate, cdata<void*> userData)
 nil         SoundStream:play()
 nil         SoundStream:pause()
 nil         SoundStream:stop()
@@ -669,7 +664,7 @@ SoundStatus.Playing
 ]=]
 
 SoundStatus.Stopped = sfAudio.sfStopped;
-SoundStatus.Paused = sfAudio.sfPaused;
+SoundStatus.Paused  = sfAudio.sfPaused;
 SoundStatus.Playing = sfAudio.sfPlaying;
 
 end -- sfAudio

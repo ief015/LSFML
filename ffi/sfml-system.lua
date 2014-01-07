@@ -32,7 +32,6 @@ local ffi = require 'ffi';
 
 local setmetatable = setmetatable;
 local rawget = rawget;
-local require = require;
 
 module 'sf';
 
@@ -264,10 +263,10 @@ ffi.metatype('sfTime', Time);
 
 --[=[
 InputStream()
-function    InputStream.read    => function(cdata data, number size, cdata userData)
-function    InputStream.seek    => function(number position, cdata userData)
-function    InputStream.tell    => function(cdata data)
-function    InputStream.getSize => function(cdata userData)
+function    InputStream.read    => function(cdata data, number size, cdata<void*> userData)
+function    InputStream.seek    => function(number position, cdata<void*> userData)
+function    InputStream.tell    => function(cdata<void*> userData)
+function    InputStream.getSize => function(cdata<void*> userData)
 userdata    InputStream.userData
 ]=]
 
@@ -308,7 +307,7 @@ end
 
 
 --[=[
-Thread(function func, cdata userData = nil)
+Thread(function func => function(cdata<void*> userData), cdata<void*> userData = nil)
 nil    Thread:launch()
 nil    Thread:wait()
 nil    Thread:terminate()

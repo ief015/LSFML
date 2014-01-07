@@ -1,4 +1,4 @@
-require 'sfml-window';
+require '../ffi/sfml-window';
 
 print("SFML " .. sf.Version.Major .. "." .. sf.Version.Minor .. " - Window");
 

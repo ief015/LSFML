@@ -1,4 +1,4 @@
-require 'sfml-system';
+require '../ffi/sfml-system';
 
 print("SFML " .. sf.Version.Major .. "." .. sf.Version.Minor .. " - System");
 
