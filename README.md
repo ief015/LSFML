@@ -29,4 +29,4 @@ Audio API (sfml-audio)        - Usable, near completed
 
 Networking API (sfml-network) - 25%
 
-Graphics API (sfml-graphics)  - 25%
+Graphics API (sfml-graphics)  - Usable, near completed
