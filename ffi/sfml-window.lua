@@ -57,6 +57,8 @@ ffi.cdef [[
 typedef struct sfContext sfContext;
 typedef struct sfWindow sfWindow;
 
+typedef void* sfWindowHandle;
+
 typedef enum
 {
 	sfEvtClosed,
@@ -324,8 +326,6 @@ typedef struct
     unsigned int minorVersion;      ///< Minor number of the context version to create
 } sfContextSettings;
 
-typedef void* sfWindowHandle;
-
 sfContext* sfContext_create(void);
 void       sfContext_destroy(sfContext* context);
 void       sfContext_setActive(sfContext* context, sfBool active);
@@ -396,7 +396,6 @@ Mouse = {};           Mouse.__index = Mouse;
 Style = {};           Style.__index = Style;
 VideoMode = {};       VideoMode.__index = VideoMode;
 Window = {};          Window.__index = Window;
-WindowHandle = {};    WindowHandle.__index = WindowHandle;
 
 
 --[=[
@@ -420,6 +419,7 @@ ffi.metatype('sfContext', Context);
 
 
 --[=[
+ContextSettings(ContextSettings copy)
 ContextSettings(number depthBits = 0, number stencilBits = 0, number antialiasingLevel = 0, number majorVersion = 2, number minorVersion = 0)
 number          ContextSettings.depthBits
 number          ContextSettings.stencilBits
@@ -428,14 +428,18 @@ number          ContextSettings.majorVersion
 number          ContextSettings.minorVersion
 ]=]
 
-setmetatable(ContextSettings, { __call = function(cl, depthBits, stencilBits, antialiasingLevel, majorVersion, minorVersion)
-	local obj = newObj(ContextSettings, ffi.new('sfContextSettings'));
-	if depthBits == nil         then obj.depthBits = 0;         else obj.depthBits = depthBits; end
-	if stencilBits == nil       then obj.stencilBits = 0;       else obj.stencilBits = stencilBits; end
-	if antialiasingLevel == nil then obj.antialiasingLevel = 0; else obj.antialiasingLevel = antialiasingLevel; end
-	if majorVersion == nil      then obj.majorVersion = 2;      else obj.majorVersion = majorVersion; end
-	if minorVersion == nil      then obj.minorVersion = 0;      else obj.minorVersion = minorVersion; end
-	return obj;
+setmetatable(ContextSettings, { __call = function(cl, copy_depthBits, stencilBits, antialiasingLevel, majorVersion, minorVersion)
+	if ffi.istype('sfContextSettings', copy_depthBits) then
+		return newObj(ContextSettings, ffi.new('sfContextSettings', {copy_depthBits.depthBits, copy_depthBits.stencilBits, copy_depthBits.antialiasingLevel, copy_depthBits.majorVersion, copy_depthBits.minorVersion}));
+	else
+		local obj = newObj(ContextSettings, ffi.new('sfContextSettings'));
+		if copy_depthBits == nil    then obj.depthBits = 0;         else obj.depthBits = copy_depthBits; end
+		if stencilBits == nil       then obj.stencilBits = 0;       else obj.stencilBits = stencilBits; end
+		if antialiasingLevel == nil then obj.antialiasingLevel = 0; else obj.antialiasingLevel = antialiasingLevel; end
+		if majorVersion == nil      then obj.majorVersion = 2;      else obj.majorVersion = majorVersion; end
+		if minorVersion == nil      then obj.minorVersion = 0;      else obj.minorVersion = minorVersion; end
+		return obj;
+	end
 end });
 ffi.metatype('sfContextSettings', ContextSettings);
 
@@ -830,6 +834,7 @@ Keyboard.F15       = sfWindow.sfKeyF15
 Keyboard.Pause     = sfWindow.sfKeyPause
 Keyboard.Count     = sfWindow.sfKeyCount
 
+
 --[=[
 bool     Mouse.isButtonPressed(MouseButton button)
 Vector2i Mouse.getPosition(Window relativeTo = nil)
@@ -885,40 +890,45 @@ Style.Default    = sfWindow.sfDefaultStyle;
 
 
 --[=[
+VideoMode(VideoMode copy)
 VideoMode(number width = 0, number height = 0, number bitsPerPixel = 32)
 number    VideoMode.width
 number    VideoMode.height
 number    VideoMode.bitsPerPixel
 ]=]
 
-setmetatable(VideoMode, { __call = function(cl, width, height, bitsPerPixel)
-	local obj = newObj(VideoMode, ffi.new('sfVideoMode'));
-	if width == nil        then obj.width = 0;         else obj.width = width; end
-	if height == nil       then obj.height = 0;        else obj.height = height; end
-	if bitsPerPixel == nil then obj.bitsPerPixel = 32; else obj.bitsPerPixel = bitsPerPixel; end
-	return obj;
+setmetatable(VideoMode, { __call = function(cl, copy_width, height, bitsPerPixel)
+	if ffi.istype('sfVideoMode', copy_width) then
+		return newObj(VideoMode, ffi.new('sfVideoMode', {copy_width.width, copy_width.height, copy_width.bitsPerPixel}));
+	else
+		local obj = newObj(VideoMode, ffi.new('sfVideoMode'));
+		if copy_width == nil   then obj.width = 0;         else obj.width = copy_width; end
+		if height == nil       then obj.height = 0;        else obj.height = height; end
+		if bitsPerPixel == nil then obj.bitsPerPixel = 32; else obj.bitsPerPixel = bitsPerPixel; end
+		return obj;
+	end
 end });
 ffi.metatype('sfVideoMode', VideoMode);
 
 
 --[=[
 Window(WindowHandle handle, ContextSettings settings)
-Window          Window(VideoMode mode, string title, Style style = Style.Default, ContextSettings settings = ContextSettings())
+Window(VideoMode mode, string title, Style style = Style.Default, ContextSettings settings = ContextSettings())
 nil             Window:close()
 bool            Window:isOpen()
 ContextSettings Window:getSettings()
-bool            Window:pollEvent(Event event)
-bool            Window:waitEvent(Event event)
+bool            Window:pollEvent(OUT Event event)
+bool            Window:waitEvent(OUT Event event)
 Vector2i        Window:getPosition()
 nil             Window:setPosition(Vector2i position)
 Vector2i        Window:getSize()
 nil             Window:setSize(Vector2u size)
 void            Window:setTitle(string title)
-void            Window:setIcon(number width, number height, table pixels)
-void            Window:setVisible(bool visible = true)
-void            Window:setMouseCursorVisible(bool visible = true)
-void            Window:setVerticalSyncEnabled(bool enabled = true)
-void            Window:setKeyRepeatEnabled(bool enabled = true)
+void            Window:setIcon(number width, number height, cdata<number*> pixels)
+void            Window:setVisible(bool visible)
+void            Window:setMouseCursorVisible(bool visible)
+void            Window:setVerticalSyncEnabled(bool enabled)
+void            Window:setKeyRepeatEnabled(bool enabled)
 bool            Window:setActive(bool active = true)
 void            Window:display()
 void            Window:setFramerateLimit(number limit)
@@ -954,7 +964,7 @@ function Window:getPosition()
 	return sfWindow.sfWindow_getPosition(self);
 end
 function Window:setPosition(position)
-	sfWindow.sfWindow_getPosition(self, position);
+	sfWindow.sfWindow_setPosition(self, position);
 end
 function Window:getSize()
 	return sfWindow.sfWindow_getSize(self);
@@ -969,33 +979,19 @@ function Window:setIcon(width, height, pixels)
 	sfWindow.sfWindow_setIcon(self, width, height, pixels);
 end
 function Window:setVisible(visible)
-	if visible == nil then
-		visible = true;
-	end
 	sfWindow.sfWindow_setVisible(self, visible);
 end
 function Window:setMouseCursorVisible(visible)
-	if visible == nil then
-		visible = true;
-	end
 	sfWindow.sfWindow_setMouseCursorVisible(self, visible);
 end
 function Window:setVerticalSyncEnabled(enabled)
-	if enabled == nil then
-		enabled = true;
-	end
 	sfWindow.sfWindow_setVerticalSyncEnabled(self, enabled);
 end
 function Window:setKeyRepeatEnabled(enabled)
-	if enabled == nil then
-		enabled = true;
-	end
 	sfWindow.sfWindow_setKeyRepeatEnabled(self, enabled);
 end
 function Window:setActive(active)
-	if active == nil then
-		active = true;
-	end
+	if active == nil then active = true; end
 	return bool(sfWindow.sfWindow_setActive(self, active));
 end
 function Window:display()
@@ -1011,8 +1007,5 @@ function Window:getSystemHandle()
 	return sfWindow.sfWindow_getSystemHandle(self);
 end
 ffi.metatype('sfWindow', Window);
-
-
-ffi.metatype('sfWindowHandle', WindowHandle);
 
 end -- sfWindow
