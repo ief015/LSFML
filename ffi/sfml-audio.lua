@@ -244,7 +244,7 @@ end
 Music(string filename)
 Music(cdata data, number sizeInBytes)
 Music(InputStream stream)
-nil         Music:setLoop(bool loop = true)
+nil         Music:setLoop(bool loop)
 bool        Music:getLoop()
 Time        Music:getDuration()
 nil         Music:play()
@@ -284,9 +284,6 @@ function Music:__gc()
 	sfAudio.sfMusic_destroy(self);
 end
 function Music:setLoop(loop)
-	if loop == nil then
-		loop = true;
-	end
 	sfAudio.sfMusic_setLoop(self, loop);
 end
 function Music:getLoop()
@@ -359,14 +356,16 @@ ffi.metatype('sfMusic', Music);
 
 
 --[=[
-Sound(SoundBuffer buffer = nil)
+Sound()
+Sound(Sound copy)
+Sound(SoundBuffer buffer)
 Sound       Sound:copy()
 nil         Sound:play()
 nil         Sound:pause()
 nil         Sound:stop()
 nil         Sound:setBuffer(SoundBuffer buffer)
 SoundBuffer Sound:getBuffer()
-nil         Sound:setLoop(bool loop = true)
+nil         Sound:setLoop(bool loop)
 bool        Sound:getLoop()
 SoundStatus Sound:getStatus()
 nil         Sound:setPitch(number pitch)
@@ -385,12 +384,16 @@ number      Sound:getAttenuation()
 Time        Sound:getPlayingOffset()
 ]=]
 
-setmetatable(Sound, { __call = function(cl, buffer)
-	local obj = newObj(Sound, sfAudio.sfSound_create());
-	if buffer ~= nil then
-		sfAudio.sfSound_setBuffer(obj, buffer);
+setmetatable(Sound, { __call = function(cl, copy_buffer)
+	if ffi.istype('sfSound', copy_buffer) then
+		sfAudio.sfSound_copy(obj, copy_buffer);
+	else
+		local obj = newObj(Sound, sfAudio.sfSound_create());
+		if ffi.istype('sfSoundBuffer', copy_buffer) then
+			sfAudio.sfSound_setBuffer(obj, copy_buffer);
+		end
+		return obj;
 	end
-	return obj;
 end });
 function Sound:__gc()
 	sfAudio.sfSound_destroy(self);
@@ -408,9 +411,6 @@ function Sound:stop()
 	sfAudio.sfSound_stop(self);
 end
 function Sound:setLoop(loop)
-	if loop == nil then
-		loop = true;
-	end
 	sfAudio.sfSound_setLoop(self, loop);
 end
 function Sound:getLoop()
@@ -465,6 +465,7 @@ ffi.metatype('sfSound', Sound);
 
 
 --[=[
+SoundBuffer(SoundBuffer copy)
 SoundBuffer(string filename)
 SoundBuffer(cdata data, number sizeInBytes)
 SoundBuffer(InputStream stream)
@@ -479,19 +480,21 @@ Time           SoundBuffer:getDuration()
 ]=]
 
 
-setmetatable(SoundBuffer, { __call = function(cl, filename_data_stream_samples, sizeInBytes_sampleCount, channelCount, sampleRate)
-	local t = type(filename_data_stream_samples);
+setmetatable(SoundBuffer, { __call = function(cl, copy_filename_data_stream_samples, sizeInBytes_sampleCount, channelCount, sampleRate)
+	local t = type(copy_filename_data_stream_samples);
 	if t == 'cdata' then
-		if ffi.istype('sfInputStream', filename_data_stream_samples) then
-			return newObj(SoundBuffer, sfAudio.sfSoundBuffer_createFromStream(filename_data_stream_samples));
+		if ffi.istype('sfSoundBuffer', copy_filename_data_stream_samples) then
+			return newObj(SoundBuffer, sfAudio.sfSoundBuffer_copy(copy_filename_data_stream_samples));
+		elseif ffi.istype('sfInputStream', copy_filename_data_stream_samples) then
+			return newObj(SoundBuffer, sfAudio.sfSoundBuffer_createFromStream(copy_filename_data_stream_samples));
 		else
-			return newObj(SoundBuffer, sfAudio.sfSoundBuffer_createFromMemory(filename_data_stream_samples, sizeInBytes_sampleCount));
+			return newObj(SoundBuffer, sfAudio.sfSoundBuffer_createFromMemory(copy_filename_data_stream_samples, sizeInBytes_sampleCount));
 		end
 	elseif t == 'string' then
-		return newObj(SoundBuffer, sfAudio.sfSoundBuffer_createFromFile(filename_data_stream_samples));
+		return newObj(SoundBuffer, sfAudio.sfSoundBuffer_createFromFile(copy_filename_data_stream_samples));
 	else
 		-- TODO table samples
-		return newObj(SoundBuffer, sfAudio.sfSoundBuffer_createFromSamples(filename_data_stream_samples, sizeInBytes_sampleCount, channelCount, sampleRate));
+		return newObj(SoundBuffer, sfAudio.sfSoundBuffer_createFromSamples(copy_filename_data_stream_samples, sizeInBytes_sampleCount, channelCount, sampleRate));
 	end
 end });
 function SoundBuffer:__gc()
@@ -565,7 +568,7 @@ nil         SoundStream:setRelativeToListener(bool relative)
 nil         SoundStream:setMinDistance(number distance)
 nil         SoundStream:setAttenuation(number attenuation)
 nil         SoundStream:setPlayingOffset(Time timeOffset)
-nil         SoundStream:setLoop(bool loop = true)
+nil         SoundStream:setLoop(bool loop)
 number      SoundStream:getPitch()
 number      SoundStream:getVolume()
 Vector3f    SoundStream:getPosition()
@@ -622,9 +625,6 @@ function SoundStream:setPlayingOffset(timeOffset)
 	sfAudio.sfSound_setPlayingOffset(self, timeOffset);
 end
 function SoundStream:setLoop(loop)
-	if loop == nil then
-		loop = true;
-	end
 	sfAudio.sfSound_setLoop(self, loop);
 end
 function SoundStream:getPitch()
