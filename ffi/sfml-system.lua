@@ -175,12 +175,16 @@ Vector3f = {};    Vector3f.__index = Vector3f;
 
 --[=[
 Clock()
+Clock(Clock copy)
 Clock Clock:copy(Clock clk)
 Time  Clock:getElapsedTime()
 Time  Clock:restart()
 ]=]
 
-setmetatable(Clock, { __call = function(cl)
+setmetatable(Clock, { __call = function(cl, copy)
+	if ffi.istype('sfClock', copy) then
+		return newObj(Clock, sfSystem.sfClock_copy(copy));
+	end
 	return newObj(Clock, sfSystem.sfClock_create());
 end });
 function Clock:__gc()
@@ -331,10 +335,15 @@ end
 ffi.metatype('sfThread', Thread);
 
 
--- TODO vector operators
-
 --[=[
 Vector2i(number x = 0, number y = 0)
+Vector2i:operator -  ()
+Vector2i:operator +  (Vector2i right)
+Vector2i:operator -  (Vector2i right)
+Vector2i:operator *  (number right)
+Vector2i:operator /  (number right)
+Vector2i:operator == (Vector2i right)
+Vector2i:operator ~= (Vector2i right)
 number   Vector2i.x
 number   Vector2i.y
 ]=]
@@ -345,11 +354,36 @@ setmetatable(Vector2i, { __call = function(cl, x, y)
 	if y == nil then obj.y = 0; else obj.y = y; end
 	return obj;
 end });
+function Vector2i:__unm()
+	return newObj(Vector2i, ffi.new('sfVector2i', {-self.x, -self.y}));
+end
+function Vector2i:__add(rhs)
+	return newObj(Vector2i, ffi.new('sfVector2i', {self.x + rhs.x, self.y + rhs.y}));
+end
+function Vector2i:__sub(rhs)
+	return newObj(Vector2i, ffi.new('sfVector2i', {self.x - rhs.x, self.y - rhs.y}));
+end
+function Vector2i:__mul(rhs)
+	return newObj(Vector2i, ffi.new('sfVector2i', {self.x * rhs, self.y * rhs}));
+end
+function Vector2i:__div(rhs)
+	return newObj(Vector2i, ffi.new('sfVector2i', {self.x / rhs, self.y / rhs}));
+end
+function Vector2i:__eq(rhs)
+	return (self.x == rhs.x) and (self.y == rhs.y);
+end
 ffi.metatype('sfVector2i', Vector2i);
 
 
 --[=[
 Vector2u(number x = 0, number y = 0)
+Vector2u:operator -  ()
+Vector2u:operator +  (Vector2u right)
+Vector2u:operator -  (Vector2u right)
+Vector2u:operator *  (number right)
+Vector2u:operator /  (number right)
+Vector2u:operator == (Vector2u right)
+Vector2u:operator ~= (Vector2u right)
 number   Vector2u.x
 number   Vector2u.y
 ]=]
@@ -360,11 +394,36 @@ setmetatable(Vector2u, { __call = function(cl, x, y)
 	if y == nil then obj.y = 0; else obj.y = y; end
 	return obj;
 end });
+function Vector2u:__unm()
+	return newObj(Vector2u, ffi.new('sfVector2u', {-self.x, -self.y}));
+end
+function Vector2u:__add(rhs)
+	return newObj(Vector2u, ffi.new('sfVector2u', {self.x + rhs.x, self.y + rhs.y}));
+end
+function Vector2u:__sub(rhs)
+	return newObj(Vector2u, ffi.new('sfVector2u', {self.x - rhs.x, self.y - rhs.y}));
+end
+function Vector2u:__mul(rhs)
+	return newObj(Vector2u, ffi.new('sfVector2u', {self.x * rhs, self.y * rhs}));
+end
+function Vector2u:__div(rhs)
+	return newObj(Vector2u, ffi.new('sfVector2u', {self.x / rhs, self.y / rhs}));
+end
+function Vector2u:__eq(rhs)
+	return (self.x == rhs.x) and (self.y == rhs.y);
+end
 ffi.metatype('sfVector2u', Vector2u);
 
 
 --[=[
 Vector2f(number x = 0, number y = 0)
+Vector2f:operator -  ()
+Vector2f:operator +  (Vector2f right)
+Vector2f:operator -  (Vector2f right)
+Vector2f:operator *  (number right)
+Vector2f:operator /  (number right)
+Vector2f:operator == (Vector2f right)
+Vector2f:operator ~= (Vector2f right)
 number   Vector2f.x
 number   Vector2f.y
 ]=]
@@ -375,11 +434,36 @@ setmetatable(Vector2f, { __call = function(cl, x, y)
 	if y == nil then obj.y = 0; else obj.y = y; end
 	return obj;
 end });
+function Vector2f:__unm()
+	return newObj(Vector2f, ffi.new('sfVector2f', {-self.x, -self.y}));
+end
+function Vector2f:__add(rhs)
+	return newObj(Vector2f, ffi.new('sfVector2f', {self.x + rhs.x, self.y + rhs.y}));
+end
+function Vector2f:__sub(rhs)
+	return newObj(Vector2f, ffi.new('sfVector2f', {self.x - rhs.x, self.y - rhs.y}));
+end
+function Vector2f:__mul(rhs)
+	return newObj(Vector2f, ffi.new('sfVector2f', {self.x * rhs, self.y * rhs}));
+end
+function Vector2f:__div(rhs)
+	return newObj(Vector2f, ffi.new('sfVector2f', {self.x / rhs, self.y / rhs}));
+end
+function Vector2f:__eq(rhs)
+	return (self.x == rhs.x) and (self.y == rhs.y);
+end
 ffi.metatype('sfVector2f', Vector2f);
 
 
 --[=[
 Vector3f(number x = 0, number y = 0, number z = 0)
+Vector3f:operator -  ()
+Vector3f:operator +  (Vector3f right)
+Vector3f:operator -  (Vector3f right)
+Vector3f:operator *  (number right)
+Vector3f:operator /  (number right)
+Vector3f:operator == (Vector3f right)
+Vector3f:operator ~= (Vector3f right)
 number   Vector3f.x
 number   Vector3f.y
 number   Vector3f.z
@@ -392,6 +476,24 @@ setmetatable(Vector3f, { __call = function(cl, x, y, z)
 	if z == nil then obj.z = 0; else obj.z = z; end
 	return obj;
 end });
+function Vector3f:__unm()
+	return newObj(Vector3f, ffi.new('sfVector3f', {-self.x, -self.y, -self.z}));
+end
+function Vector3f:__add(rhs)
+	return newObj(Vector3f, ffi.new('sfVector3f', {self.x + rhs.x, self.y + rhs.y, self.z + rhs.z}));
+end
+function Vector3f:__sub(rhs)
+	return newObj(Vector3f, ffi.new('sfVector3f', {self.x - rhs.x, self.y - rhs.y, self.z - rhs.z}));
+end
+function Vector3f:__mul(rhs)
+	return newObj(Vector3f, ffi.new('sfVector3f', {self.x * rhs, self.y * rhs, self.z * rhs}));
+end
+function Vector3f:__div(rhs)
+	return newObj(Vector3f, ffi.new('sfVector3f', {self.x / rhs, self.y / rhs, self.z / rhs}));
+end
+function Vector3f:__eq(rhs)
+	return (self.x == rhs.x) and (self.y == rhs.y) and (self.z == rhs.z);
+end
 ffi.metatype('sfVector3f', Vector3f);
 
 end -- sfSystem
