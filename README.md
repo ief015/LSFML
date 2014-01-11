@@ -1,11 +1,11 @@
 LSFML
 =====
 
-LSFML is an attempt to implement the popular [C++ multimedia library SFML](http://www.sfml-dev.org) seemlessly into Lua via CSFML (the SFML C binding), using LuaJIT's powerful FFI library.
-
 Current supported SFML version: **2.1**
 
-*LSFML will not work with the vanilla/standard Lua interpretter. LSFML was designed for use with [LuaJIT](http://luajit.org/).*
+LSFML is an attempt to implement the popular [C++ multimedia library SFML](http://www.sfml-dev.org) seemlessly into Lua via LuaJIT's powerful FFI library. LSFML is based of the CSFML library (SFML's C binding,) but attempts to resemble the original C++ SFML as closely as possible. If you wish to view example code using LSFML, check out the examples folder.
+
+*NOTE: LSFML will not work with the vanilla/standard Lua interpretter. LSFML was designed for use with [LuaJIT](http://luajit.org/).*
 
 
 How to use:
