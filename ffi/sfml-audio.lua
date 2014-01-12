@@ -410,6 +410,12 @@ end
 function Sound:stop()
 	sfAudio.sfSound_stop(self);
 end
+function Sound:setBuffer(buffer)
+	return sfAudio.sfSound_setBuffer(self, buffer);
+end
+function Sound:getBuffer()
+	return sfAudio.sfSound_getBuffer(self);
+end
 function Sound:setLoop(loop)
 	sfAudio.sfSound_setLoop(self, loop);
 end
