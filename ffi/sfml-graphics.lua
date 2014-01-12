@@ -34,6 +34,7 @@ local setmetatable = setmetatable;
 local rawget = rawget;
 local require = require;
 local type = type;
+--local tonumber = tonumber;
 
 module 'sf';
 require 'ffi/sfml-system';
@@ -2708,6 +2709,21 @@ end
 function VertexArray:getBounds()
 	return sfGraphics.sfVertexArray_getBounds(self);
 end
+--[[
+function VertexArray:__index(k)
+	local v = rawget(self, k);
+	if v == nil then
+		return sfGraphics.sfVertexArray_getVertex(self, tonumber(k));
+	end
+	return v;
+end
+function VertexArray:__newindex(k, v)
+	local obj = sfGraphics.sfVertexArray_getVertex(self, tonumber(k));
+	obj.position  = v.position;
+	obj.color     = v.color;
+	obj.texCoords = v.texCoords;
+end
+]]
 ffi.metatype('sfVertexArray', VertexArray);
 
 
@@ -2799,6 +2815,7 @@ end
 function View:zoom(factor)
 	sfGraphics.sfView_zoom(self, factor);
 end
+ffi.metatype('sfView', View);
 
 
 RenderStates.Default = RenderStates()
