@@ -1,4 +1,4 @@
-LSFML
+﻿LSFML
 =====
 
 Current supported SFML version: **2.1**
@@ -21,12 +21,12 @@ Easy, right?
 
 Roadmap:
 -----
-System API (sfml-system)      - Usable, near completed
+✓ System API (sfml-system)      - Usable, near completed
 
-Windowing API (sfml-window)   - Completed
+✓ Windowing API (sfml-window)   - Completed
 
-Audio API (sfml-audio)        - Usable, near completed
+✓ Audio API (sfml-audio)        - Usable, near completed
 
-Networking API (sfml-network) - 25%
+✗ Networking API (sfml-network) - 25%
 
-Graphics API (sfml-graphics)  - Usable, near completed
+✓ Graphics API (sfml-graphics)  - Usable, near completed
