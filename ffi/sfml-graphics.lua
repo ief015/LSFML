@@ -2196,7 +2196,7 @@ function Text:__gc()
 	sfGraphics.sfText_destroy(self);
 end
 function Text:copy()
-	return newObj(Text, sfGraphics.sfSprite_copy(self));
+	return newObj(Text, sfGraphics.sfText_copy(self));
 end
 function Text:setPosition(position_x, y)
 	if ffi.istype('sfVector2f', position_x) then
