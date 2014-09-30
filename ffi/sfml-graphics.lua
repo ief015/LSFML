@@ -1167,7 +1167,7 @@ function Image:copy()
 	return newObj(Image, sfGraphics.sfImage_copy(self));
 end
 function Image:saveToFile(filename)
-	return bool(sfGraphics.sfImage_saveToFile(filename));
+	return bool(sfGraphics.sfImage_saveToFile(self, filename));
 end
 function Image:getSize()
 	return sfGraphics.sfImage_getSize(self);
