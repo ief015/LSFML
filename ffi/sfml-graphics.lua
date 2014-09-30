@@ -828,7 +828,7 @@ setmetatable(Color, { __call = function(cl, copy_red, green, blue, alpha)
 		if copy_red == nil then
 			return newObj(Color, sfGraphics.sfColor_fromRGB(0, 0, 0));
 		else
-			if a == nil then
+			if alpha == nil then
 				return newObj(Color, sfGraphics.sfColor_fromRGB(copy_red, green, blue));
 			else
 				return newObj(Color, sfGraphics.sfColor_fromRGBA(copy_red, green, blue, alpha));
@@ -2181,15 +2181,18 @@ Text.Style.Underlined
 ]=]
 
 setmetatable(Text, { __call = function(cl, copy_text, font, characterSize)
-	if ffi.istype('sfText', copy_text) then
-		return newObj(Text, sfGraphics.sfText_copy(copy_text));
+	if copy_text == nil then
+		return newObj(Text, sfGraphics.sfText_create());
 	else
-		if characterSize == nil then characterSize = 30; end
-		local obj = newObj(Text, sfGraphics.sfText_create())
-		sfGraphics.sfText_setString(obj, copy_text);
-		sfGraphics.sfText_setFont(obj, font);
-		sfGraphics.sfText_setCharacterSize(obj, characterSize);
-		return obj;
+		if ffi.istype('sfText', copy_text) then
+			return newObj(Text, sfGraphics.sfText_copy(copy_text));
+		else
+			local obj = newObj(Text, sfGraphics.sfText_create());
+			sfGraphics.sfText_setString(obj, copy_text);
+			sfGraphics.sfText_setFont(obj, font);
+			sfGraphics.sfText_setCharacterSize(obj, characterSize or 30);
+			return obj;
+		end
 	end
 end });
 function Text:__gc()
@@ -2470,10 +2473,10 @@ function Transform:combine(other)
 	sfGraphics.sfTransform_combine(self, other);
 end
 function Transform:translate(offset_x, y)
-	if ffi.istype('sfVector2f', point_x) then
-		return sfGraphics.sfTransform_translate(self, point_x.x, point_x.y);
+	if ffi.istype('sfVector2f', offset_x) then
+		return sfGraphics.sfTransform_translate(self, offset_x.x, offset_x.y);
 	else
-		return sfGraphics.sfTransform_translate(self, point_x, y);
+		return sfGraphics.sfTransform_translate(self, offset_x, y);
 	end
 end
 function Transform:rotate(angle, center_x, y)
@@ -2626,9 +2629,9 @@ Vertex2f Vertex.texCoords
 ]=]
 
 setmetatable(Vertex, { __call = function(cl, copy_position, color_texCoords, texCoords)
-	if copy_position == nil then
+	if type(copy_position) == 'nil' then
 		local obj = newObj(Vertex, ffi.new('sfVertex'));
-		obj.color     = Color.Black;
+		obj.color = Color.Black;
 		return obj;
 	else
 		if ffi.istype('sfVertex', copy_position) then
@@ -2650,7 +2653,7 @@ setmetatable(Vertex, { __call = function(cl, copy_position, color_texCoords, tex
 				obj.texCoords = texCoords;
 				return obj;
 			end
-			obj.color     = Color.Black;
+			obj.color = Color.Black;
 		end
 	end
 end });

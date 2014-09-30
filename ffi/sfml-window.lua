@@ -600,14 +600,14 @@ Joystick.update = function()
 	sfWindow.sfJoystick_update();
 end
 
-Joystick.X    = sfWindow.sfJoystickX;
-Joystick.Y    = sfWindow.sfJoystickY;
-Joystick.Z    = sfWindow.sfJoystickZ;
-Joystick.R    = sfWindow.sfJoystickR;
-Joystick.U    = sfWindow.sfJoystickU;
-Joystick.V    = sfWindow.sfJoystickV;
-Joystick.PovX = sfWindow.sfJoystickPovX;
-Joystick.PovY = sfWindow.sfJoystickPovY;
+Joystick.X           = sfWindow.sfJoystickX;
+Joystick.Y           = sfWindow.sfJoystickY;
+Joystick.Z           = sfWindow.sfJoystickZ;
+Joystick.R           = sfWindow.sfJoystickR;
+Joystick.U           = sfWindow.sfJoystickU;
+Joystick.V           = sfWindow.sfJoystickV;
+Joystick.PovX        = sfWindow.sfJoystickPovX;
+Joystick.PovY        = sfWindow.sfJoystickPovY;
 
 Joystick.Count       = sfWindow.sfJoystickCount;
 Joystick.ButtonCount = sfWindow.sfJoystickButtonCount;

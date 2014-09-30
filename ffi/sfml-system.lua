@@ -32,6 +32,7 @@ local ffi = require 'ffi';
 
 local setmetatable = setmetatable;
 local rawget = rawget;
+local tonumber = tonumber;
 
 module 'sf';
 
@@ -233,13 +234,13 @@ function microseconds(amount)
 	return newObj(Time, sfSystem.sfMicroseconds(amount));
 end
 function Time:asSeconds()
-	return sfSystem.sfTime_asSeconds(self);
+	return tonumber(sfSystem.sfTime_asSeconds(self));
 end
 function Time:asMilliseconds()
-	return sfSystem.sfTime_asMilliseconds(self);
+	return tonumber(sfSystem.sfTime_asMilliseconds(self));
 end
 function Time:asMicroseconds()
-	return sfSystem.sfTime_asMicroseconds(self);
+	return tonumber(sfSystem.sfTime_asMicroseconds(self));
 end
 function Time:__lt(rhs)
 	return self.microseconds < rhs.microseconds;
